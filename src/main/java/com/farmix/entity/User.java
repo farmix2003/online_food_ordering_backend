@@ -30,7 +30,7 @@ public class User {
 
     private Integer whatsappNumber;
 
-    private USER_ROLE role;
+    private USER_ROLE role = USER_ROLE.CUSTOMER;
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer")
