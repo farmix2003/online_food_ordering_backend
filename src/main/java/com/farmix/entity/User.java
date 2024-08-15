@@ -26,9 +26,9 @@ public class User {
 
     private String password;
 
-    private Integer phoneNumber;
+    private String phoneNumber;
 
-    private Integer whatsappNumber;
+    private String whatsappNumber;
 
     private USER_ROLE role = USER_ROLE.CUSTOMER;
 
