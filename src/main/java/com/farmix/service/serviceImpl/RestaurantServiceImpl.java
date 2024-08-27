@@ -50,7 +50,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public Restaurant updateRestaurant(Long id, CreateRestaurantRequest restaurant) throws Exception {
+    public void updateRestaurant(Long id, CreateRestaurantRequest restaurant) throws Exception {
         Restaurant updatedRestaurant = restaurantRepository.getReferenceById(id);
 
         if (restaurant.getName() != null){
@@ -58,6 +58,7 @@ public class RestaurantServiceImpl implements RestaurantService {
         }
         if (restaurant.getAddress() != null) {
             updatedRestaurant.setAddress(restaurant.getAddress());
+            addressRepository.save(restaurant.getAddress());
         }
         if (restaurant.getDescription() != null) {
             updatedRestaurant.setDescription(restaurant.getDescription());
@@ -78,7 +79,7 @@ public class RestaurantServiceImpl implements RestaurantService {
             updatedRestaurant.setImages(restaurant.getImages());
         }
 
-        return restaurantRepository.save(updatedRestaurant);
+        restaurantRepository.save(updatedRestaurant);
     }
 
     @Override
@@ -92,7 +93,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public List<Restaurant> getAllRestaurants() throws Exception {
-        return restaurantRepository.findAll();
+       return restaurantRepository.findAll();
     }
 
     @Override

@@ -57,10 +57,10 @@ public class AuthController {
         newUser.setRole(user.getRole());
         newUser.setPhoneNumber(user.getPhoneNumber());
         newUser.setWhatsappNumber(user.getWhatsappNumber());
-        newUser.setPassword(passwordEncoder.encode(user.getPassword())); // Encode password
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         System.out.println(newUser);
 
-        User savedUser = userRepository.save(newUser); // No ID set here, should generate automatically
+        User savedUser = userRepository.save(newUser);
 
         Cart cartUser = new Cart();
         cartUser.setCustomer(savedUser);

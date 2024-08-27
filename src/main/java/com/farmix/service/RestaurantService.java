@@ -10,7 +10,7 @@ import java.util.List;
 public interface RestaurantService {
 
     public Restaurant createRestaurant(CreateRestaurantRequest restaurant, User user) throws Exception;
-    public Restaurant updateRestaurant(Long id, CreateRestaurantRequest restaurant) throws Exception;
+    public void updateRestaurant(Long id, CreateRestaurantRequest restaurant) throws Exception;
     public Restaurant getRestaurantById(Long id) throws Exception;
     public List<Restaurant> getAllRestaurants() throws Exception;
     public void deleteRestaurant(Long id) throws Exception;

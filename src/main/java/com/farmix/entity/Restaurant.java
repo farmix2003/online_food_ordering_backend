@@ -29,7 +29,7 @@ public class Restaurant {
 
     private String cuisineType;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST)
     private Address address;
 
     @Embedded

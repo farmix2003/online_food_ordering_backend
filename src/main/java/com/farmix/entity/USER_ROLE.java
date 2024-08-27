@@ -1,7 +1,7 @@
 package com.farmix.entity;
 
 public enum USER_ROLE {
-    ADMIN,
-    RESTAURANT_OWNER,
-    CUSTOMER
+    ROLE_ADMIN,
+    ROLE_RESTAURANT_OWNER,
+    ROLE_CUSTOMER
 }
