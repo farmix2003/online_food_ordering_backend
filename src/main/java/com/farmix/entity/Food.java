@@ -36,8 +36,6 @@ public class Food {
     @ManyToOne
     private Restaurant restaurant;
 
-    private boolean isSeasonal;
-
     @ManyToMany
     private List<Extras> extrasList = new ArrayList<>();
 
