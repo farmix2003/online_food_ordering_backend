@@ -29,7 +29,7 @@ public class CartItem {
 
     private int quantity;
 
-    private List<String> ingredients;
+    private List<String> extras;
 
     private double totalPrice;
 }
