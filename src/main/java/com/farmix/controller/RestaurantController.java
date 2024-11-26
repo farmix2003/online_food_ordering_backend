@@ -3,7 +3,6 @@ package com.farmix.controller;
 import com.farmix.dto.RestuarantDto;
 import com.farmix.entity.Restaurant;
 import com.farmix.entity.User;
-import com.farmix.request.CreateRestaurantRequest;
 import com.farmix.service.RestaurantService;
 import com.farmix.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -46,6 +46,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> createNewUser(@RequestBody User user) throws Exception {
 
         User isUserExist = userRepository.findByEmail(user.getEmail());
+
         if (isUserExist != null) {
             throw new Exception("User with email " + user.getEmail() + " already exists");
         }

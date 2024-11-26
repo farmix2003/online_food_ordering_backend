@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Food {
+public class Menu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

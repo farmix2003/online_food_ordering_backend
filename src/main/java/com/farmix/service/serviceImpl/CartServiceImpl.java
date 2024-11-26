@@ -2,16 +2,20 @@ package com.farmix.service.serviceImpl;
 
 import com.farmix.entity.Cart;
 import com.farmix.entity.CartItem;
-import com.farmix.entity.Food;
+import com.farmix.entity.Menu;
 import com.farmix.entity.User;
+import com.farmix.exception.CartItemNofFoundException;
+import com.farmix.exception.CartNotFoundException;
+import com.farmix.exception.UserNotFoundException;
 import com.farmix.repository.CartItemRepository;
 import com.farmix.repository.CartRepository;
 import com.farmix.request.CartItemReq;
 import com.farmix.service.CartService;
-import com.farmix.service.FoodService;
+import com.farmix.service.MenuService;
 import com.farmix.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -28,30 +32,42 @@ public class CartServiceImpl implements CartService {
     private UserService userService;
 
     @Autowired
-    private FoodService foodService;
+    private MenuService menuService;
 
     @Override
+    @Transactional
     public CartItem addItemToCart(CartItemReq req, String jwt) throws Exception {
 
         User user = userService.findUserByJwtToken(jwt);
+        if(user == null){
+            throw new UserNotFoundException("User not found for the given JWT token");
+        }
 
-        Food food = foodService.getFoodById(req.getFoodId());
+        Menu menu = menuService.getFoodById(req.getFoodId());
+        if (menu == null){
+            throw new CartItemNofFoundException("Food Menu not found!");
+        }
 
         Cart cart = cartRepository.findByCustomerId(user.getId());
+        if (cart == null){
+            throw new CartNotFoundException("Cart not found for the user");
+        }
 
-        for(CartItem cartItem : cart.getCartItems()) {
-            if (cartItem.getFood().equals(food)){
-                int newQuantity = cartItem.getQuantity()+req.getQuantity();
-                return updateCartItem(cartItem.getId(), newQuantity);
-            }
+        Optional<CartItem> existingCartItem = cart.getCartItems().stream()
+                .filter(cartItem -> cartItem.getFood().equals(menu))
+                .findFirst();
+
+        if (existingCartItem.isPresent()) {
+            CartItem cartItem = existingCartItem.get();
+            return updateCartItem(cartItem.getId(), cartItem.getQuantity() + req.getQuantity());
         }
 
         CartItem newCartItem = new CartItem();
         newCartItem.setCart(cart);
-        newCartItem.setFood(food);
+        newCartItem.setFood(menu);
         newCartItem.setQuantity(req.getQuantity());
         newCartItem.setExtras(req.getExtras());
-        newCartItem.setTotalPrice(req.getQuantity()*food.getPrice());
+        newCartItem.setTotalPrice(req.getQuantity()* menu.getPrice());
 
         CartItem cartItem = cartItemRepository.save(newCartItem);
 
@@ -61,14 +77,12 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public CartItem updateCartItem(Long cartItemId, int quantity) throws Exception {
 
-        Optional<CartItem> cartItemOptional = cartItemRepository.findById(cartItemId);
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new CartItemNofFoundException("CartItem not found with ID: " + cartItemId));
 
-        if (cartItemOptional.isEmpty()){
-            throw new Exception("CartItem not found");
-        }
-        CartItem cartItem = cartItemOptional.get();
         cartItem.setQuantity(quantity);
         cartItem.setTotalPrice(quantity*cartItem.getFood().getPrice());
 
@@ -76,44 +90,43 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public Cart removeCartItem(Long cartItemId, String jwt) throws Exception {
 
         User user = userService.findUserByJwtToken(jwt);
-
-        Cart cart = cartRepository.findByCustomerId(user.getId());
-
-        Optional<CartItem> cartItemOptional = cartItemRepository.findById(cartItemId);
-
-        if (cartItemOptional.isEmpty()){
-            throw new Exception("CartItem not found");
+        if (user == null) {
+            throw new UserNotFoundException("User not found for the given JWT token");
         }
 
-        CartItem cartItem = cartItemOptional.get();
+        Cart cart = cartRepository.findByCustomerId(user.getId());
+        if (cart == null) {
+            throw new CartNotFoundException("Cart not found for the user");
+        }
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new CartItemNofFoundException("CartItem not found with ID: " + cartItemId));
+
         cart.getCartItems().remove(cartItem);
+        cartItemRepository.delete(cartItem);
 
         return cartRepository.save(cart);
     }
 
     @Override
     public Long calculateCartTotal(Cart cart) throws Exception {
-        long total = 0L;
-
-        for(CartItem cartItem : cart.getCartItems()) {
-            total = (long) (cartItem.getFood().getPrice()*cartItem.getQuantity());
+        if (cart == null || cart.getCartItems().isEmpty()) {
+            return 0L;
         }
 
-        return total;
+        return cart.getCartItems().stream()
+                .mapToLong(item -> (long) (item.getFood().getPrice() * item.getQuantity()))
+                .sum();
     }
 
     @Override
-    public Cart findCartById(Long cartId) throws Exception {
-
-        Optional<Cart> cartOptional = cartRepository.findById(cartId);
-        if (cartOptional.isEmpty()){
-            throw new Exception("CartItem not found");
-        }
-
-        return cartOptional.get();
+    public Cart findCartById(Long cartId) {
+        return cartRepository.findById(cartId)
+                .orElseThrow(() -> new CartNotFoundException("Cart not found with ID: " + cartId));
     }
 
     @Override
@@ -123,15 +136,17 @@ public class CartServiceImpl implements CartService {
         cart.setTotal(calculateCartTotal(cart));
 
         return cart;
-
     }
 
     @Override
-    public Cart clearCart(Long userId) throws Exception {
+    @Transactional
+    public Cart clearCart(Long userId) {
         Cart cart = cartRepository.findByCustomerId(userId);
+        if (cart == null) {
+            throw new CartNotFoundException("Cart not found for the user");
+        }
 
         cart.getCartItems().clear();
-
         return cartRepository.save(cart);
     }
 }

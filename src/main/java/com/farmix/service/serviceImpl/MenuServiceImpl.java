@@ -1,11 +1,11 @@
 package com.farmix.service.serviceImpl;
 
 import com.farmix.entity.Category;
-import com.farmix.entity.Food;
+import com.farmix.entity.Menu;
 import com.farmix.entity.Restaurant;
 import com.farmix.repository.FoodRepository;
 import com.farmix.request.FoodRequest;
-import com.farmix.service.FoodService;
+import com.farmix.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,14 +14,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class FoodServiceImpl implements FoodService {
+public class MenuServiceImpl implements MenuService {
 
     @Autowired
     private FoodRepository foodRepository;
 
     @Override
-    public Food addFood(FoodRequest req, Category category, Restaurant restaurant) {
-        Food food = new Food();
+    public Menu addFood(FoodRequest req, Category category, Restaurant restaurant) {
+        Menu food = new Menu();
         food.setCategory(category);
         food.setRestaurant(restaurant);
         food.setFoodName(req.getFoodName());
@@ -29,7 +29,7 @@ public class FoodServiceImpl implements FoodService {
         food.setImagesList(req.getImages());
         food.setExtrasList(req.getExtras());
         food.setPrice(req.getPrice());
-        Food savedFood = foodRepository.save(food);
+        Menu savedFood = foodRepository.save(food);
         restaurant.getFoods().add(savedFood);
 
         return savedFood;
@@ -37,14 +37,14 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public void deleteFood(Long id) throws Exception {
-        Food food = getFoodById(id);
+        Menu food = getFoodById(id);
         food.setRestaurant(null);
         foodRepository.save(food);
     }
 
     @Override
-    public Food getFoodById(Long id) throws Exception {
-        Optional<Food> optionalFood = foodRepository.findById(id);
+    public Menu getFoodById(Long id) throws Exception {
+        Optional<Menu> optionalFood = foodRepository.findById(id);
         if (optionalFood.isEmpty()) {
             throw new Exception("Food is not exist.");
         }
@@ -52,15 +52,15 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    public List<Food> getAllFoods(Long restaurantId, String category) throws Exception {
-        List<Food> foods = foodRepository.findByRestaurantId(restaurantId);
+    public List<Menu> getAllFoods(Long restaurantId, String category) throws Exception {
+        List<Menu> foods = foodRepository.findByRestaurantId(restaurantId);
         if(category != null && !category.isEmpty()){
          foods = filterByFoodCategory(foods, category);
         }
         return foods;
     }
 
-    private List<Food> filterByFoodCategory(List<Food> foods, String category) {
+    private List<Menu> filterByFoodCategory(List<Menu> foods, String category) {
       return foods.stream().filter(food -> {
           if(food.getCategory() != null){
               return food.getCategory().getName().equals(category);
@@ -70,13 +70,13 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    public List<Food> searchFood(String keyword) throws Exception {
+    public List<Menu> searchFood(String keyword) throws Exception {
         return foodRepository.searchFood(keyword);
     }
 
     @Override
-    public Food updateAvailableStatus(Long id) throws Exception {
-        Food food = getFoodById(id);
+    public Menu updateAvailableStatus(Long id) throws Exception {
+        Menu food = getFoodById(id);
         food.setAvailable(!food.isAvailable());
         return foodRepository.save(food);
     }

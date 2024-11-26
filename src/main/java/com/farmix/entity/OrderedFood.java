@@ -18,7 +18,7 @@ public class OrderedFood {
     private Long id;
 
     @ManyToOne
-    private Food food;
+    private Menu food;
 
     private int quantity;
 

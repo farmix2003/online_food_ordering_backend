@@ -1,11 +1,11 @@
 package com.farmix.controller;
 
-import com.farmix.entity.Food;
+import com.farmix.entity.Menu;
 import com.farmix.entity.Restaurant;
 import com.farmix.entity.User;
 import com.farmix.request.FoodRequest;
 import com.farmix.response.MessageResponse;
-import com.farmix.service.FoodService;
+import com.farmix.service.MenuService;
 import com.farmix.service.RestaurantService;
 import com.farmix.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/food")
-public class FoodAdminController {
+public class MenuAdminController {
 
     @Autowired
     UserService userService;
@@ -24,14 +24,14 @@ public class FoodAdminController {
     RestaurantService restaurantService;
 
     @Autowired
-    FoodService foodService;
+    MenuService foodService;
 
     @PostMapping("/add-food")
-    public ResponseEntity<Food> addFood(@RequestBody FoodRequest food,
+    public ResponseEntity<Menu> addFood(@RequestBody FoodRequest food,
                                         @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         Restaurant restaurant = restaurantService.getRestaurantById(food.getRestaurantId());
-        Food newFood = foodService.addFood(food, food.getCategory(), restaurant);
+        Menu newFood = foodService.addFood(food, food.getCategory(), restaurant);
         return new ResponseEntity<>(newFood, HttpStatus.CREATED);
     }
 
@@ -48,11 +48,11 @@ public class FoodAdminController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Food> updateFoodAvailabilityStatus(@PathVariable Long id,
+    public ResponseEntity<Menu> updateFoodAvailabilityStatus(@PathVariable Long id,
                                                              @RequestHeader("Authorization") String jwt
     ) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
-        Food food = foodService.updateAvailableStatus(id);
+        Menu food = foodService.updateAvailableStatus(id);
 
         return new ResponseEntity<>(food, HttpStatus.OK);
     }

@@ -1,12 +1,11 @@
 package com.farmix.entity;
 
+
 import com.farmix.dto.RestuarantDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class User {
 
     @Id
@@ -43,5 +43,7 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Address> addressList = new ArrayList<>();
+
+
 
 }
