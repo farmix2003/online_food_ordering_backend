@@ -24,5 +24,5 @@ public class OrderedFood {
 
     private double totalPrice;
 
-    private List<String> ingredients = new ArrayList<>();
+    private List<String> extras = new ArrayList<>();
 }

@@ -3,8 +3,7 @@ package com.farmix;
 import com.farmix.controller.RestaurantAdminController;
 import com.farmix.entity.Restaurant;
 import com.farmix.entity.User;
-import com.farmix.request.CreateRestaurantRequest;
-import com.farmix.response.MessageResponse;
+import com.farmix.request.RestaurantRequest;
 import com.farmix.service.RestaurantService;
 import com.farmix.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,12 +50,12 @@ public class RestaurantAdminControllerTest {
 
     @Test
     public void testCreateRestaurant() throws Exception {
-        CreateRestaurantRequest restaurantRequest = new CreateRestaurantRequest();
+        RestaurantRequest restaurantRequest = new RestaurantRequest();
         restaurantRequest.setName("Test Restaurant");
 
         // Mock the services
         Mockito.when(userService.findUserByJwtToken(any(String.class))).thenReturn(mockUser);
-        Mockito.when(restaurantService.createRestaurant(any(CreateRestaurantRequest.class), any(User.class)))
+        Mockito.when(restaurantService.createRestaurant(any(RestaurantRequest.class), any(User.class)))
                 .thenReturn(mockRestaurant);
 
         String requestBody = """
@@ -75,7 +74,7 @@ public class RestaurantAdminControllerTest {
 
     @Test
     public void testUpdateRestaurant() throws Exception {
-        CreateRestaurantRequest req = new CreateRestaurantRequest();
+        RestaurantRequest req = new RestaurantRequest();
         req.setName("Updated Restaurant");
 
         Mockito.when(userService.findUserByJwtToken(any(String.class))).thenReturn(mockUser);
@@ -92,7 +91,7 @@ public class RestaurantAdminControllerTest {
                         .content(requestBody))
                 .andExpect(status().isOk());
 
-        Mockito.verify(restaurantService).updateRestaurant(eq(1L), any(CreateRestaurantRequest.class));
+        Mockito.verify(restaurantService).updateRestaurant(eq(1L), any(RestaurantRequest.class));
     }
 
     @Test

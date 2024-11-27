@@ -4,14 +4,16 @@ import com.farmix.dto.RestuarantDto;
 import com.farmix.entity.Address;
 import com.farmix.entity.Restaurant;
 import com.farmix.entity.User;
+import com.farmix.exception.RestaurantNotFoundException;
 import com.farmix.repository.AddressRepository;
 import com.farmix.repository.RestaurantRepository;
 import com.farmix.repository.UserRepository;
-import com.farmix.request.CreateRestaurantRequest;
+import com.farmix.request.RestaurantRequest;
 import com.farmix.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +32,8 @@ public class RestaurantServiceImpl implements RestaurantService {
     private UserRepository userRepository;
 
     @Override
-    public Restaurant createRestaurant(CreateRestaurantRequest restaurant, User user) throws Exception {
+    @Transactional
+    public Restaurant createRestaurant(RestaurantRequest restaurant, User user) throws Exception {
 
         Address address = addressRepository.save(restaurant.getAddress());
 
@@ -50,45 +53,52 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public void updateRestaurant(Long id, CreateRestaurantRequest restaurant) throws Exception {
+    public void updateRestaurant(Long id, RestaurantRequest restaurant) throws Exception {
         Restaurant updatedRestaurant = restaurantRepository.getReferenceById(id);
 
-        if (restaurant.getName() != null){
-            updatedRestaurant.setName(restaurant.getName());
-        }
-        if (restaurant.getAddress() != null) {
-            updatedRestaurant.setAddress(restaurant.getAddress());
-            addressRepository.save(restaurant.getAddress());
-        }
-        if (restaurant.getDescription() != null) {
-            updatedRestaurant.setDescription(restaurant.getDescription());
-        }
-        if (restaurant.getContactInfo() != null) {
-            updatedRestaurant.setContactInfo(restaurant.getContactInfo());
-        }
-        if (restaurant.getOpeningHours() != null) {
-            updatedRestaurant.setOpeningHours(restaurant.getOpeningHours());
-        }
-        if (restaurant.getClosingHours() != null) {
-            updatedRestaurant.setClosingHours(restaurant.getClosingHours());
-        }
-        if (restaurant.getCuisineType() != null) {
-            updatedRestaurant.setCuisineType(restaurant.getCuisineType());
-        }
-        if (restaurant.getImages() != null) {
-            updatedRestaurant.setImages(restaurant.getImages());
-        }
+//        if (restaurant.getName() != null){
+//            updatedRestaurant.setName(restaurant.getName());
+//        }
+//        if (restaurant.getAddress() != null) {
+//            updatedRestaurant.setAddress(restaurant.getAddress());
+//            addressRepository.save(restaurant.getAddress());
+//        }
+//        if (restaurant.getDescription() != null) {
+//            updatedRestaurant.setDescription(restaurant.getDescription());
+//        }
+//        if (restaurant.getContactInfo() != null) {
+//            updatedRestaurant.setContactInfo(restaurant.getContactInfo());
+//        }
+//        if (restaurant.getOpeningHours() != null) {
+//            updatedRestaurant.setOpeningHours(restaurant.getOpeningHours());
+//        }
+//        if (restaurant.getClosingHours() != null) {
+//            updatedRestaurant.setClosingHours(restaurant.getClosingHours());
+//        }
+//        if (restaurant.getCuisineType() != null) {
+//            updatedRestaurant.setCuisineType(restaurant.getCuisineType());
+//        }
+//        if (restaurant.getImages() != null) {
+//            updatedRestaurant.setImages(restaurant.getImages());
+//        }
+
+        Optional.ofNullable(restaurant.getName()).ifPresent(updatedRestaurant::setName);
+        Optional.ofNullable(restaurant.getAddress()).ifPresent(updatedRestaurant::setAddress);
+        Optional.ofNullable(restaurant.getDescription()).ifPresent(updatedRestaurant::setDescription);
+        Optional.ofNullable(restaurant.getContactInfo()).ifPresent(updatedRestaurant::setContactInfo);
+        Optional.ofNullable(restaurant.getOpeningHours()).ifPresent(updatedRestaurant::setOpeningHours);
+        Optional.ofNullable(restaurant.getClosingHours()).ifPresent(updatedRestaurant::setClosingHours);
+        Optional.ofNullable(restaurant.getCuisineType()).ifPresent(updatedRestaurant::setCuisineType);
+        Optional.ofNullable(restaurant.getImages()).ifPresent(updatedRestaurant::setImages);
 
         restaurantRepository.save(updatedRestaurant);
     }
 
     @Override
     public Restaurant getRestaurantById(Long id) throws Exception {
-        Optional<Restaurant> optionalRestaurant = restaurantRepository.findById(id);
-        if (optionalRestaurant.isEmpty()){
-            throw new ChangeSetPersister.NotFoundException();
-        }
-        return optionalRestaurant.get();
+       return restaurantRepository.findById(id)
+               .orElseThrow(()-> new RestaurantNotFoundException("Restaurant not found with id "+id));
+
     }
 
     @Override

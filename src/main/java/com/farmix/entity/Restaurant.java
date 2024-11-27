@@ -1,6 +1,7 @@
 package com.farmix.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,8 +22,10 @@ public class Restaurant {
     private Long id;
 
     @OneToOne
+    @Nonnull
     private User owner;
 
+    @Nonnull
     private String name;
 
     private String description;

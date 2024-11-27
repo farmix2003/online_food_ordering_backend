@@ -49,6 +49,7 @@ public class ExtrasServiceImpl implements ExtrasService {
 
     @Override
     public Extras updateInStock(Long id) {
+
         Extras extras = extrasRepository.findById(id).get();
         extras.setInStock(!extras.isInStock());
         return null;

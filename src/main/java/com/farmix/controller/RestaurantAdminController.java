@@ -2,7 +2,7 @@ package com.farmix.controller;
 
 import com.farmix.entity.Restaurant;
 import com.farmix.entity.User;
-import com.farmix.request.CreateRestaurantRequest;
+import com.farmix.request.RestaurantRequest;
 import com.farmix.response.MessageResponse;
 import com.farmix.service.RestaurantService;
 import com.farmix.service.UserService;
@@ -22,7 +22,7 @@ public class RestaurantAdminController {
     private UserService userService;
 
     @PostMapping("/add")
-    public ResponseEntity<Restaurant> createRestaurant(@RequestBody CreateRestaurantRequest restaurant,
+    public ResponseEntity<Restaurant> createRestaurant(@RequestBody RestaurantRequest restaurant,
                                                        @RequestHeader("Authorization") String jwt)
             throws Exception {
         User user = userService.findUserByJwtToken(jwt);
@@ -35,7 +35,7 @@ public class RestaurantAdminController {
     @PutMapping("/update/{id}")
     public ResponseEntity<Restaurant> updateRestaurant(@PathVariable Long id,
                                                        @RequestHeader("Authorization") String jwt,
-                                                       @RequestBody CreateRestaurantRequest req) throws Exception {
+                                                       @RequestBody RestaurantRequest req) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
 
         restaurantService.updateRestaurant(id, req);
