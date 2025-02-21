@@ -27,9 +27,8 @@ public class Menu {
     @ManyToOne
     private Category category;
 
-    @Column(length = 1000)
-    @ElementCollection
-    private List<String> imagesList;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> imagesList = new ArrayList<>();
 
     private boolean isAvailable;
 

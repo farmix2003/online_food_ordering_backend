@@ -13,7 +13,7 @@ public class FoodRequest {
     private Double price;
 
     private Category category;
-    private List<String> images;
+    private List<Long> imageIds;
 
     private Long restaurantId;
     private List<Extras> extras;

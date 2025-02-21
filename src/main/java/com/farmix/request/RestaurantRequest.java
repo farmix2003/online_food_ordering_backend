@@ -17,5 +17,5 @@ public class RestaurantRequest {
     private ContactInfo contactInfo;
     private String openingHours;
     private String closingHours;
-    private List<String> images;
+    private List<Long> imageIds;
 }
