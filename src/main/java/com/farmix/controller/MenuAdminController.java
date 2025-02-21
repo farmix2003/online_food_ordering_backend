@@ -24,14 +24,14 @@ public class MenuAdminController {
     RestaurantService restaurantService;
 
     @Autowired
-    MenuService foodService;
+    MenuService menuService;
 
     @PostMapping("/add-food")
     public ResponseEntity<Menu> addFood(@RequestBody FoodRequest food,
                                         @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         Restaurant restaurant = restaurantService.getRestaurantById(food.getRestaurantId());
-        Menu newFood = foodService.addFood(food, food.getCategory(), restaurant);
+        Menu newFood = menuService.addFood(food, food.getCategory(), restaurant);
         return new ResponseEntity<>(newFood, HttpStatus.CREATED);
     }
 
@@ -40,7 +40,7 @@ public class MenuAdminController {
                                                       @RequestHeader("Authorization") String jwt
                                            ) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
-        foodService.deleteFood(id);
+        menuService.deleteFood(id);
 
         MessageResponse response = new MessageResponse();
         response.setMessage("Food deleted successfully");
@@ -52,8 +52,8 @@ public class MenuAdminController {
                                                              @RequestHeader("Authorization") String jwt
     ) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
-        Menu food = foodService.updateAvailableStatus(id);
+        Menu menu = menuService.updateAvailableStatus(id);
 
-        return new ResponseEntity<>(food, HttpStatus.OK);
+        return new ResponseEntity<>(menu, HttpStatus.OK);
     }
 }

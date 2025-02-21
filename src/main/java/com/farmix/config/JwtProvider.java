@@ -14,8 +14,8 @@ import java.util.*;
 @Component
 public class JwtProvider {
 
-    private SecretKey key = Keys.hmacShaKeyFor(JwtContstant.SECRET_KEY.getBytes());
-
+    private final SecretKey key = Keys.hmacShaKeyFor(JwtContstant.SECRET_KEY.getBytes());
+    private final Set<String> blackListTokens = new HashSet<>();
     public String generateToken(Authentication auth) {
         Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
         String role = populateAuthorities(authorities);
@@ -42,5 +42,12 @@ public class JwtProvider {
             auths.add(authority.getAuthority());
         }
         return String.join(",", auths);
+    }
+
+    public void addToBlackList(String jwt) {
+        blackListTokens.add(jwt);
+    }
+    public boolean isTokenBlackListed(String jwt){
+        return blackListTokens.contains(jwt);
     }
 }

@@ -1,5 +1,6 @@
 package com.farmix.request;
 
+import jakarta.annotation.Nonnull;
 import lombok.Data;
 
 @Data

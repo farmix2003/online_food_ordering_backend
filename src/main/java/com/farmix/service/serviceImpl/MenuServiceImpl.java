@@ -4,7 +4,7 @@ import com.farmix.entity.Category;
 import com.farmix.entity.Menu;
 import com.farmix.entity.Restaurant;
 import com.farmix.exception.FoodNotFoundException;
-import com.farmix.repository.FoodRepository;
+import com.farmix.repository.MenuRepository;
 import com.farmix.request.FoodRequest;
 import com.farmix.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class MenuServiceImpl implements MenuService {
 
     @Autowired
-    private FoodRepository foodRepository;
+    private MenuRepository menuRepository;
 
     @Override
     @Transactional
@@ -37,7 +37,7 @@ public class MenuServiceImpl implements MenuService {
         food.setImagesList(req.getImages());
         food.setExtrasList(req.getExtras());
         food.setPrice(req.getPrice());
-        Menu savedFood = foodRepository.save(food);
+        Menu savedFood = menuRepository.save(food);
         restaurant.getFoods().add(savedFood);
 
         return savedFood;
@@ -48,19 +48,19 @@ public class MenuServiceImpl implements MenuService {
     public void deleteFood(Long id) throws Exception {
         Menu food = getFoodById(id);
         food.setRestaurant(null);
-        foodRepository.save(food);
+        menuRepository.save(food);
     }
 
     @Override
     public Menu getFoodById(Long id) throws Exception {
-      return foodRepository.findById(id)
+      return menuRepository.findById(id)
               .orElseThrow(() -> new FoodNotFoundException("Food not found with id "+id));
     }
 
     @Override
     @Transactional
     public List<Menu> getAllFoods(Long restaurantId, String category) throws Exception {
-        List<Menu> menuList = foodRepository.findByRestaurantId(restaurantId);
+        List<Menu> menuList = menuRepository.findByRestaurantId(restaurantId);
         if(category != null && !category.isEmpty()){
             menuList = filterByFoodCategory(menuList, category);
         }
@@ -75,7 +75,7 @@ public class MenuServiceImpl implements MenuService {
 
     @Override
     public List<Menu> searchFood(String keyword) throws Exception {
-        return foodRepository.searchFood(keyword);
+        return menuRepository.searchFood(keyword);
     }
 
     @Override
@@ -83,6 +83,6 @@ public class MenuServiceImpl implements MenuService {
     public Menu updateAvailableStatus(Long id) throws Exception {
         Menu food = getFoodById(id);
         food.setAvailable(!food.isAvailable());
-        return foodRepository.save(food);
+        return menuRepository.save(food);
     }
 }

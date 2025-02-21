@@ -1,5 +1,6 @@
 package com.farmix.controller;
 
+import com.farmix.dto.CategoryDTO;
 import com.farmix.entity.Category;
 import com.farmix.entity.User;
 import com.farmix.service.CategoryService;
@@ -31,10 +32,10 @@ public class CategoryController {
     }
 
     @GetMapping("/category")
-    public ResponseEntity<List<Category>> getRestaurantCategories(
+    public ResponseEntity<List<CategoryDTO>> getRestaurantCategories(
             @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
-        List<Category> categories = categoryService.findCategoriesByRestaurantId(user.getId());
+        List<CategoryDTO> categories = categoryService.findCategoriesByRestaurantId(user.getId());
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 

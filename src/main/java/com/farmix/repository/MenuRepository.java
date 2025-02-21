@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FoodRepository extends JpaRepository<Menu, Long> {
+public interface MenuRepository extends JpaRepository<Menu, Long> {
 
-    @Query("SELECT f FROM Food f WHERE f.foodName LIKE %:keyword% OR f.category.name LIKE %:keyword%")
+    @Query("SELECT f FROM Menu f WHERE f.foodName LIKE %:keyword% OR f.category.name LIKE %:keyword%")
     List<Menu> searchFood(@Param("keyword") String keyword);
 
      List<Menu> findByRestaurantId(Long restaurantId);

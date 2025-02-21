@@ -4,6 +4,7 @@ import com.farmix.config.JwtProvider;
 import com.farmix.entity.Cart;
 import com.farmix.entity.USER_ROLE;
 import com.farmix.entity.User;
+import com.farmix.exception.UserAlreadyExistsException;
 import com.farmix.repository.CartRepository;
 import com.farmix.repository.UserRepository;
 import com.farmix.request.LoginRequest;
@@ -18,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -43,12 +45,12 @@ public class AuthController {
     private CartRepository cartRepository;
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> createNewUser(@RequestBody User user) throws Exception {
+    public ResponseEntity<AuthResponse> createNewUser(@Validated @RequestBody User user) {
 
         User isUserExist = userRepository.findByEmail(user.getEmail());
 
         if (isUserExist != null) {
-            throw new Exception("User with email " + user.getEmail() + " already exists");
+            throw new UserAlreadyExistsException("User with email " + user.getEmail() + " already exists");
         }
 
         User newUser = new User();
@@ -81,7 +83,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<AuthResponse> signIn(@RequestBody LoginRequest user) {
+    public ResponseEntity<AuthResponse> signIn(@Validated @RequestBody LoginRequest user) {
         String email = user.getEmail();
         String password = user.getPassword();
 
@@ -101,6 +103,26 @@ public class AuthController {
 
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<AuthResponse> logout(@RequestHeader("Authorization") String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            AuthResponse errorResponse = new AuthResponse();
+            errorResponse.setMessage("Invalid token");
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        String jwt = token.substring(7);
+        jwtProvider.addToBlackList(jwt);
+        SecurityContextHolder.clearContext();
+
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setMessage("Logged out successfully");
+        authResponse.setJwt(null);
+        authResponse.setRole(null);
+
+        return new ResponseEntity<>(authResponse, HttpStatus.OK);
+    }
+
     private Authentication authenticate(String email, String password) {
         UserDetails userDetails = customerUserDetailsService.loadUserByUsername(email);
 
@@ -112,4 +134,6 @@ public class AuthController {
         }
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
+
+
 }
