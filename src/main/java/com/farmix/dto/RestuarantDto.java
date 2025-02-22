@@ -1,5 +1,6 @@
 package com.farmix.dto;
 
+import com.farmix.entity.Image;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Id;
@@ -16,6 +17,6 @@ public class RestuarantDto {
     private String title;
 
     @Column(length = 1000)
-    private List<String> images;
+    private List<Image> images;
     private String description;
 }

@@ -1,9 +1,8 @@
 package com.farmix.service.serviceImpl;
 
-import com.farmix.entity.Category;
-import com.farmix.entity.Menu;
-import com.farmix.entity.Restaurant;
+import com.farmix.entity.*;
 import com.farmix.exception.FoodNotFoundException;
+import com.farmix.repository.ImageRepository;
 import com.farmix.repository.MenuRepository;
 import com.farmix.request.FoodRequest;
 import com.farmix.service.MenuService;
@@ -21,6 +20,9 @@ public class MenuServiceImpl implements MenuService {
     @Autowired
     private MenuRepository menuRepository;
 
+    @Autowired
+    private ImageRepository imageRepository;
+
     @Override
     @Transactional
     public Menu addFood(FoodRequest req, Category category, Restaurant restaurant) {
@@ -29,12 +31,17 @@ public class MenuServiceImpl implements MenuService {
             throw new IllegalArgumentException("Food name must not be null or empty.");
         }
 
+        List<Image> images = imageRepository.findAllById(req.getImageIds())
+                .stream()
+                .filter(image -> image.getImageType() == ImageType.MENU_FOOD)
+                .toList();
+
         Menu food = new Menu();
         food.setCategory(category);
         food.setRestaurant(restaurant);
         food.setFoodName(req.getFoodName());
         food.setDescription(req.getDescription());
-        food.setImagesList(req.getImages());
+        food.setImagesList(images);
         food.setExtrasList(req.getExtras());
         food.setPrice(req.getPrice());
         Menu savedFood = menuRepository.save(food);

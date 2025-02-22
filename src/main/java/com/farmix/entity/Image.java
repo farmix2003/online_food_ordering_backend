@@ -28,4 +28,6 @@ public class Image {
     private String fileUrl;
     private LocalDateTime createdAt;
 
+    @Enumerated(EnumType.STRING)
+    private ImageType imageType;
 }

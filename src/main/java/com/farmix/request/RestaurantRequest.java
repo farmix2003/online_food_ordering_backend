@@ -2,6 +2,7 @@ package com.farmix.request;
 
 import com.farmix.entity.Address;
 import com.farmix.entity.ContactInfo;
+import com.farmix.entity.Image;
 import lombok.Data;
 
 import java.util.List;
