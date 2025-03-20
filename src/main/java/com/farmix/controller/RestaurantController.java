@@ -1,6 +1,6 @@
 package com.farmix.controller;
 
-import com.farmix.dto.RestuarantDto;
+import com.farmix.dto.RestaurantDto;
 import com.farmix.entity.Restaurant;
 import com.farmix.entity.User;
 import com.farmix.service.RestaurantService;
@@ -52,13 +52,13 @@ public class RestaurantController {
         return new ResponseEntity<>(restaurants, HttpStatus.OK) ;
     }
     @PutMapping("/{id}/add-favourites")
-    public ResponseEntity<RestuarantDto> addToFavourites(@PathVariable Long id,
+    public ResponseEntity<RestaurantDto> addToFavourites(@PathVariable Long id,
                                                          @RequestHeader("Authorization") String jwt
                                                          ) throws Exception {
     User user = userService.findUserByJwtToken(jwt);
-    RestuarantDto restuarantDto = restaurantService.addToFavourites(id, user);
+    RestaurantDto restaurantDto = restaurantService.addToFavourites(id, user);
 
-    return new ResponseEntity<>(restuarantDto, HttpStatus.OK);
+    return new ResponseEntity<>(restaurantDto, HttpStatus.OK);
     }
 }
 

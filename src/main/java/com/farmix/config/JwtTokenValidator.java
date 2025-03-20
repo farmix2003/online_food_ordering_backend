@@ -25,17 +25,15 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtTokenValidator extends OncePerRequestFilter {
 
+    @Autowired
+    private JwtProvider jwtProvider;
 
-    private final JwtProvider jwtProvider;
-     public JwtTokenValidator(){
-         jwtProvider = new JwtProvider();
-     }
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String jwt = request.getHeader(JwtContstant.JWT_HEADER);
+        String jwt = request.getHeader(JwtConstant.JWT_HEADER);
 
         if (jwt != null && jwt.startsWith("Bearer ")) {
             jwt = jwt.substring(7);
@@ -44,7 +42,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                 return;
             }
             try {
-                SecretKey key = Keys.hmacShaKeyFor(JwtContstant.SECRET_KEY.getBytes());
+                SecretKey key = Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
                 Claims claims = Jwts.parserBuilder()
                         .setSigningKey(key)
                         .build()

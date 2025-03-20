@@ -14,7 +14,8 @@ import java.util.*;
 @Component
 public class JwtProvider {
 
-    private final SecretKey key = Keys.hmacShaKeyFor(JwtContstant.SECRET_KEY.getBytes());
+
+    private final SecretKey key = Keys.hmacShaKeyFor(JwtConstant.getSecretKey().getBytes());
     private final Set<String> blackListTokens = new HashSet<>();
     public String generateToken(Authentication auth) {
         Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();

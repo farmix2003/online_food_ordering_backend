@@ -27,7 +27,7 @@ public class Menu {
     @ManyToOne
     private Category category;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> imagesList = new ArrayList<>();
 
     private boolean isAvailable;

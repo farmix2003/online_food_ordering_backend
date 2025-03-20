@@ -27,14 +27,12 @@ public class MenuServiceImpl implements MenuService {
     @Transactional
     public Menu addFood(FoodRequest req, Category category, Restaurant restaurant) {
 
+        List<Image> images = imageRepository.findAllById(req.getImageIds());
+
         if (req.getFoodName() == null || req.getFoodName().isEmpty()) {
             throw new IllegalArgumentException("Food name must not be null or empty.");
         }
 
-        List<Image> images = imageRepository.findAllById(req.getImageIds())
-                .stream()
-                .filter(image -> image.getImageType() == ImageType.MENU_FOOD)
-                .toList();
 
         Menu food = new Menu();
         food.setCategory(category);
@@ -45,6 +43,11 @@ public class MenuServiceImpl implements MenuService {
         food.setExtrasList(req.getExtras());
         food.setPrice(req.getPrice());
         Menu savedFood = menuRepository.save(food);
+
+        images.forEach(image -> image.setMenu(savedFood));
+
+        imageRepository.saveAll(images);
+
         restaurant.getFoods().add(savedFood);
 
         return savedFood;

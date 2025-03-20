@@ -2,8 +2,12 @@ package com.farmix.service.serviceImpl;
 
 import com.farmix.entity.Image;
 import com.farmix.entity.ImageType;
+import com.farmix.entity.Menu;
+import com.farmix.entity.Restaurant;
 import com.farmix.exception.ImageNotFoundException;
 import com.farmix.repository.ImageRepository;
+import com.farmix.repository.MenuRepository;
+import com.farmix.repository.RestaurantRepository;
 import com.farmix.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -21,16 +25,37 @@ public class ImageServiceImpl implements ImageService {
     @Autowired
     private ImageRepository imageRepository;
 
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+
+    @Autowired
+    private MenuRepository menuRepository;
+
     private static final String BASE_URL = "http://localhost:8080/api/image/view";
 
     @Override
-    public Image uploadImage(MultipartFile file, ImageType imageType) throws IOException {
+    public Image uploadImage(MultipartFile file, Long restaurantId, Long menuId) throws IOException {
+
+        if ((restaurantId == null && menuId == null) || (restaurantId != null && menuId != null)) {
+            throw new IllegalArgumentException("Either restaurantId or menuId must be provided, but not both.");
+        }
+
         Image image = new Image();
         image.setFileName(file.getOriginalFilename());
         image.setFileType(file.getContentType());
         image.setData(file.getBytes());
         image.setCreatedAt(LocalDateTime.now());
-        image.setImageType(imageType);
+
+        if (restaurantId != null) {
+            Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                    .orElseThrow(() -> new IllegalArgumentException("Restaurant not found with id " + restaurantId));
+            image.setRestaurant(restaurant);
+        } else {
+            Menu menu = menuRepository.findById(menuId)
+                    .orElseThrow(() -> new IllegalArgumentException("Menu item not found with id " + menuId));
+            image.setMenu(menu);
+        }
+
         Image savedImage =  imageRepository.save(image);
 
         savedImage.setFileUrl(generateUrl(savedImage.getId()));

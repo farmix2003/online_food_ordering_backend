@@ -22,7 +22,7 @@ public class RestaurantAdminController {
     private UserService userService;
 
     @PostMapping("/add")
-    public ResponseEntity<Restaurant> createRestaurant(@RequestBody RestaurantRequest restaurant,
+    public ResponseEntity<Restaurant> createRestaurant(@ModelAttribute RestaurantRequest restaurant,
                                                        @RequestHeader("Authorization") String jwt)
             throws Exception {
         User user = userService.findUserByJwtToken(jwt);
@@ -35,7 +35,7 @@ public class RestaurantAdminController {
     @PutMapping("/update/{id}")
     public ResponseEntity<Restaurant> updateRestaurant(@PathVariable Long id,
                                                        @RequestHeader("Authorization") String jwt,
-                                                       @RequestBody RestaurantRequest req) throws Exception {
+                                                       @ModelAttribute RestaurantRequest req) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
 
         restaurantService.updateRestaurant(id, req);

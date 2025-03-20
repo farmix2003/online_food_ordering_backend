@@ -28,6 +28,11 @@ public class Image {
     private String fileUrl;
     private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.STRING)
-    private ImageType imageType;
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant;
+
+    @ManyToOne
+    @JoinColumn(name = "menu_id")
+    private Menu menu;
 }

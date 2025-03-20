@@ -1,6 +1,6 @@
 package com.farmix.service.serviceImpl;
 
-import com.farmix.dto.RestuarantDto;
+import com.farmix.dto.RestaurantDto;
 import com.farmix.entity.*;
 import com.farmix.exception.RestaurantNotFoundException;
 import com.farmix.repository.AddressRepository;
@@ -10,13 +10,16 @@ import com.farmix.repository.UserRepository;
 import com.farmix.request.RestaurantRequest;
 import com.farmix.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 
 @Service
 public class RestaurantServiceImpl implements RestaurantService {
@@ -37,15 +40,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Transactional
     public Restaurant createRestaurant(RestaurantRequest restaurant, User user) throws Exception {
 
-
-
         Address address = addressRepository.save(restaurant.getAddress());
-
-        List<Image> images = imageRepository.findAllById(restaurant.getImageIds())
-                .stream()
-                .filter(image -> image.getImageType() == ImageType.RESTAURANT)
-                .toList();
-
 
         Restaurant newRestaurant = new Restaurant();
         newRestaurant.setName(restaurant.getName());
@@ -55,15 +50,41 @@ public class RestaurantServiceImpl implements RestaurantService {
         newRestaurant.setOpeningHours(restaurant.getOpeningHours());
         newRestaurant.setClosingHours(restaurant.getClosingHours());
         newRestaurant.setCuisineType(restaurant.getCuisineType());
-        newRestaurant.setImages(images);
         newRestaurant.setRegistrationDate(LocalDateTime.now());
         newRestaurant.setOwner(user);
+
+        newRestaurant = restaurantRepository.save(newRestaurant);
+
+        List<Image> images = new ArrayList<>();
+
+        if (restaurant.getImages() != null) {
+            Restaurant finalNewRestaurant = newRestaurant;
+            restaurant.getImages().forEach(file -> {
+                try {
+                    Image image = new Image();
+
+                    image.setFileName(UUID.randomUUID() + "_" + file.getOriginalFilename());
+                    image.setFileType(file.getContentType());
+                    image.setData(file.getBytes());
+                    image.setCreatedAt(LocalDateTime.now());
+                    image.setRestaurant(finalNewRestaurant);
+
+                    images.add(imageRepository.save(image));
+
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to save image", e);
+                }
+            });
+        }
+
+        newRestaurant.setImages(images);
 
         return restaurantRepository.save(newRestaurant);
     }
 
     @Override
     public void updateRestaurant(Long id, RestaurantRequest restaurant) throws Exception {
+
         Restaurant updatedRestaurant = restaurantRepository.getReferenceById(id);
 
         Optional.ofNullable(restaurant.getName()).ifPresent(updatedRestaurant::setName);
@@ -73,16 +94,34 @@ public class RestaurantServiceImpl implements RestaurantService {
         Optional.ofNullable(restaurant.getOpeningHours()).ifPresent(updatedRestaurant::setOpeningHours);
         Optional.ofNullable(restaurant.getClosingHours()).ifPresent(updatedRestaurant::setClosingHours);
         Optional.ofNullable(restaurant.getCuisineType()).ifPresent(updatedRestaurant::setCuisineType);
-        if (restaurant.getImageIds() != null && !restaurant.getImageIds().isEmpty()) {
-            List<Image> images = imageRepository.findAllById(restaurant.getImageIds())
-                    .stream()
-                    .filter(img -> img.getImageType() == ImageType.RESTAURANT)
-                    .toList();
 
-            updatedRestaurant.setImages(images);
+        List<Image> imagesToKeep = restaurant.getImages() != null
+                ? imageRepository.findAllById(restaurant.getImageIds())
+                : new ArrayList<>();
+
+        List<Image> imagesToDelete = updatedRestaurant.getImages().stream()
+                        .filter(image -> !imagesToKeep.contains(image))
+                        .toList();
+
+        imageRepository.deleteAll(imagesToDelete);
+
+        List<Image> newImages = new ArrayList<>();
+        if (restaurant.getImages() != null && !restaurant.getImages().isEmpty()){
+            for (MultipartFile file : restaurant.getImages()){
+                Image image = new Image();
+                image.setFileName(file.getOriginalFilename());
+                image.setFileType(file.getContentType());
+                image.setData(file.getBytes());
+                image.setRestaurant(updatedRestaurant);
+                image.setCreatedAt(LocalDateTime.now());
+                newImages.add(image);
+            }
         }
+        imagesToKeep.addAll(newImages);
+        updatedRestaurant.setImages(imagesToKeep);
 
         restaurantRepository.save(updatedRestaurant);
+
     }
 
     @Override
@@ -114,10 +153,10 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public RestuarantDto addToFavourites(Long id, User user) throws Exception {
+    public RestaurantDto addToFavourites(Long id, User user) throws Exception {
         Restaurant restaurant = getRestaurantById(id);
 
-        RestuarantDto dto = new RestuarantDto();
+        RestaurantDto dto = new RestaurantDto();
         dto.setId(id);
         dto.setTitle(restaurant.getName());
         dto.setDescription(restaurant.getDescription());

@@ -1,7 +1,5 @@
 package com.farmix.entity;
 
-
-import com.farmix.dto.RestuarantDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -39,7 +37,7 @@ public class User {
     private List<Order> orderList = new ArrayList<>();
 
     @ElementCollection
-    private List<RestuarantDto> favoriteFoodList = new ArrayList<>();
+    private List<Restaurant> favoriteFoodList = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Address> addressList = new ArrayList<>();
