@@ -25,8 +25,12 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtTokenValidator extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtProvider jwtProvider;
+
+    private final JwtProvider jwtProvider;
+
+    public JwtTokenValidator(JwtProvider jwtProvider){
+        this.jwtProvider = jwtProvider;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,

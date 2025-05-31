@@ -21,13 +21,19 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
+    private final JwtTokenValidator jwtTokenValidator;
+
+    public SecurityConfig(JwtTokenValidator jwtTokenValidator){
+        this.jwtTokenValidator = jwtTokenValidator;
+    }
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                         authorize.requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "RESTAURANT_OWNER")
-                                .requestMatchers("/api/**").authenticated().anyRequest().permitAll()
-                ).addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class)
+                                .requestMatchers("/api/public/**").authenticated().anyRequest().permitAll()
+                ).addFilterBefore(jwtTokenValidator, BasicAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
